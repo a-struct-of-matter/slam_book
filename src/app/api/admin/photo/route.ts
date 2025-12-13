@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 
   try {
     const buf = await getPhotoFromS3(storageName);
-    return new NextResponse(buf instanceof Buffer ? buf.buffer : buf, {
+    return new NextResponse(new Uint8Array(buf), {
       headers: {
         "content-type": "application/octet-stream",
         "cache-control": "no-store",
