@@ -14,6 +14,48 @@ type Submission = {
   };
 };
 
+const QUESTIONS = [
+	"What's one memory you have that always makes you smile?",
+	"Give yourself a silly nickname you think actually fits.",
+	"What habit of yours would you 'upgrade' if you had the power?",
+	"Which cartoon character do you think you act like sometimes?",
+	"What's the weirdest thing you do that cracks you up?",
+
+	"What little thing other do that makes you smile without realizing?",
+	"What's your cutest habit?",
+	"How would you describe your vibe in a few words?",
+	"Which of your fears do you find a little silly?",
+
+	"What book or movie matches your personality?",
+
+	"What's a tiny thing you do that reminds you of a good day?",
+	"Give yourself a compliment you actually mean.",
+	"What would you make for yourself on a cozy Sunday?",
+	"What new thing do you want to try this year?",
+	"What's a secret 'superpower' you think you have?",
+	"What hobby of yours would surprise people if they knew?",
+	"What small gift would make your day?",
+
+	"How would you cheer yourself up on a rough day?",
+
+	"Which movie do you always end up talking over?",
+
+	"What's your favorite way to make yourself feel good?",
+
+	"What's one thing you'd never want to change about yourself?",
+];
+
+function getQuestionLabel(idx: number): string {
+	const keywords = [
+		"Memory", "Nickname", "Habit", "Character", "Weird",
+		"Smile", "Cute", "Vibe", "Fear", "Match",
+		"Tiny", "Compliment", "Cook", "Try", "Superpower",
+		"Surprise", "Gift", "Cheer", "Movie", "Feel",
+		"Never"
+	];
+	return keywords[idx] || `Q${idx}`;
+}
+
 export default function AdminPage() {
   const [key, setKey] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -150,67 +192,357 @@ export default function AdminPage() {
             </div>
           ) : null}
 
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl bg-white/55 p-4">
-              <div
-                className="mb-2 sb-highlight sb-highlight--lemon"
-                style={{ fontFamily: "var(--font-scribble)" }}
-              >
-                quick list
+          <div className="mt-5 grid gap-4">
+            {rows.length === 0 ? (
+              <div className="rounded-2xl bg-white/55 p-8 text-center text-neutral-600">
+                No submissions yet.
               </div>
-              <div className="grid gap-3">
-                {rows.length === 0 ? (
-                  <div className="text-sm text-neutral-600">
-                    No submissions yet.
-                  </div>
-                ) : (
-                  rows.map((r) => (
-                    <div key={r.id} className="sb-scribble bg-white/50 p-3">
-                      <div className="flex items-center justify-between gap-2">
+            ) : (
+              rows.map((r, idx) => {
+                const payload = r.payload as any;
+                const aboutMe = payload?.aboutMe || {};
+                const favs = aboutMe?.favorites || {};
+
+                return (
+                  <div
+                    key={r.id}
+                    className="rounded-2xl bg-white/55 p-6 shadow-sm overflow-hidden"
+                  >
+                    {/* Header */}
+                    <div className="mb-4 flex items-center justify-between gap-3 pb-3 border-b border-neutral-200">
+                      <div>
                         <div
-                          className="text-[15px]"
+                          className="sb-highlight text-lg"
                           style={{ fontFamily: "var(--font-scribble)" }}
                         >
-                          {r.id}
+                          #{idx + 1} • {aboutMe?.name || "Anonymous"}
                         </div>
-                        <div className="text-xs text-neutral-600">
+                        <div className="mt-1 text-xs text-neutral-600">
                           {new Date(r.createdAt).toLocaleString()}
                         </div>
                       </div>
-                      {r.photo ? (
-                        <div className="mt-2 text-xs text-neutral-700">
-                          photo:{" "}
-                          <a
-                            className="underline"
-                            href={`/api/admin/photo?storageName=${encodeURIComponent(r.photo.storageName)}&key=${encodeURIComponent(
-                              key,
-                            )}`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            {r.photo.originalName}
-                          </a>
-                        </div>
-                      ) : null}
+                      {r.photo && (
+                        <a
+                          className="sb-scribble sb-highlight--lemon px-3 py-1 text-xs hover:bg-white/20"
+                          href={`/api/admin/photo?storageName=${encodeURIComponent(r.photo.storageName)}&key=${encodeURIComponent(
+                            key,
+                          )}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          📷 View Photo
+                        </a>
+                      )}
                     </div>
-                  ))
-                )}
-              </div>
-            </div>
 
-            <div className="rounded-2xl bg-white/55 p-4">
-              <div
-                className="mb-2 sb-highlight"
-                style={{ fontFamily: "var(--font-scribble)" }}
-              >
-                raw json (copy/paste)
-              </div>
-              <textarea
-                readOnly
-                className="sb-scribble h-[520px] w-full resize-none bg-white/50 px-3 py-2 font-mono text-[12px] leading-5"
-                value={pretty}
-              />
-            </div>
+                    {/* Basic Info Grid */}
+                    <div className="mb-4 grid gap-3 md:grid-cols-4">
+                      <div className="rounded-lg bg-white/40 p-3">
+                        <div className="text-xs text-neutral-600">Birthday</div>
+                        <div
+                          className="mt-1 text-sm font-semibold"
+                          style={{ fontFamily: "var(--font-scribble)" }}
+                        >
+                          {aboutMe?.birthday || "—"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/40 p-3">
+                        <div className="text-xs text-neutral-600">Zodiac</div>
+                        <div
+                          className="mt-1 text-sm font-semibold"
+                          style={{ fontFamily: "var(--font-scribble)" }}
+                        >
+                          {aboutMe?.zodiac || "—"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/40 p-3">
+                        <div className="text-xs text-neutral-600">
+                          Current Place
+                        </div>
+                        <div
+                          className="mt-1 text-sm font-semibold"
+                          style={{ fontFamily: "var(--font-scribble)" }}
+                        >
+                          {aboutMe?.currentPlace || "—"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/40 p-3">
+                        <div className="text-xs text-neutral-600">
+                          Now Playing
+                        </div>
+                        <div
+                          className="mt-1 text-sm font-semibold"
+                          style={{ fontFamily: "var(--font-scribble)" }}
+                        >
+                          {aboutMe?.nowPlaying || "—"}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Favorites Section */}
+                    {Object.values(favs).some((v) => v) && (
+                      <div className="mb-4">
+                        <div
+                          className="mb-2 sb-highlight sb-highlight--peach text-sm"
+                          style={{ fontFamily: "var(--font-scribble)" }}
+                        >
+                          Favorites
+                        </div>
+                        <div className="grid gap-2 md:grid-cols-5">
+                          {[
+                            { key: "food", label: "Food" },
+                            { key: "animal", label: "Animal" },
+                            { key: "place", label: "Place" },
+                            { key: "movie", label: "Movie/Show" },
+                            { key: "color", label: "Color" },
+                            { key: "song", label: "Song" },
+                            { key: "book", label: "Book" },
+                            { key: "app", label: "App" },
+                            { key: "holiday", label: "Holiday" },
+                            { key: "vlogger", label: "Creator" },
+                          ].map((item) => (
+                            favs[item.key] && (
+                              <div
+                                key={item.key}
+                                className="rounded-lg bg-white/40 p-2"
+                              >
+                                <div className="text-xs text-neutral-600">
+                                  {item.label}
+                                </div>
+                                <div className="mt-1 text-sm truncate">
+                                  {favs[item.key]}
+                                </div>
+                              </div>
+                            )
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Lists Section */}
+                    <div className="mb-4 grid gap-4 md:grid-cols-3">
+                      {aboutMe?.hobbies?.some((h: string) => h) && (
+                        <div>
+                          <div
+                            className="mb-2 sb-highlight--lemon text-xs"
+                            style={{ fontFamily: "var(--font-scribble)" }}
+                          >
+                            Hobbies
+                          </div>
+                          <div className="space-y-1">
+                            {aboutMe.hobbies.map((h: string, i: number) =>
+                              h ? (
+                                <div
+                                  key={i}
+                                  className="rounded bg-white/40 px-2 py-1 text-sm"
+                                >
+                                  {h}
+                                </div>
+                              ) : null,
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {aboutMe?.habits?.some((h: string) => h) && (
+                        <div>
+                          <div
+                            className="mb-2 sb-highlight--peach text-xs"
+                            style={{ fontFamily: "var(--font-scribble)" }}
+                          >
+                            Habits
+                          </div>
+                          <div className="space-y-1">
+                            {aboutMe.habits.map((h: string, i: number) =>
+                              h ? (
+                                <div
+                                  key={i}
+                                  className="rounded bg-white/40 px-2 py-1 text-sm"
+                                >
+                                  {h}
+                                </div>
+                              ) : null,
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {aboutMe?.quirks?.some((q: string) => q) && (
+                        <div>
+                          <div
+                            className="mb-2 sb-highlight--lemon text-xs"
+                            style={{ fontFamily: "var(--font-scribble)" }}
+                          >
+                            Quirks
+                          </div>
+                          <div className="space-y-1">
+                            {aboutMe.quirks.map((q: string, i: number) =>
+                              q ? (
+                                <div
+                                  key={i}
+                                  className="rounded bg-white/40 px-2 py-1 text-sm"
+                                >
+                                  {q}
+                                </div>
+                              ) : null,
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Text Areas */}
+                    <div className="mb-4 grid gap-4 md:grid-cols-2">
+                      {aboutMe?.interests && (
+                        <div className="rounded-lg bg-white/40 p-3">
+                          <div
+                            className="mb-2 text-xs font-semibold text-neutral-700"
+                            style={{ fontFamily: "var(--font-scribble)" }}
+                          >
+                            Interests
+                          </div>
+                          <div className="text-sm text-neutral-800 whitespace-pre-wrap">
+                            {aboutMe.interests}
+                          </div>
+                        </div>
+                      )}
+                      {aboutMe?.bucketList && (
+                        <div className="rounded-lg bg-white/40 p-3">
+                          <div
+                            className="mb-2 text-xs font-semibold text-neutral-700"
+                            style={{ fontFamily: "var(--font-scribble)" }}
+                          >
+                            Bucket List
+                          </div>
+                          <div className="text-sm text-neutral-800 whitespace-pre-wrap">
+                            {aboutMe.bucketList}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Short Messages */}
+                    <div className="mb-4 grid gap-3 md:grid-cols-3">
+                      {aboutMe?.motto && (
+                        <div className="rounded-lg bg-white/40 p-3">
+                          <div className="text-xs text-neutral-600">Motto</div>
+                          <div className="mt-1 text-sm italic text-neutral-800">
+                            "{aboutMe.motto}"
+                          </div>
+                        </div>
+                      )}
+                      {aboutMe?.bestQuality && (
+                        <div className="rounded-lg bg-white/40 p-3">
+                          <div className="text-xs text-neutral-600">
+                            Best Quality
+                          </div>
+                          <div className="mt-1 text-sm text-neutral-800">
+                            {aboutMe.bestQuality}
+                          </div>
+                        </div>
+                      )}
+                      {aboutMe?.secretTalent && (
+                        <div className="rounded-lg bg-white/40 p-3">
+                          <div className="text-xs text-neutral-600">
+                            Secret Talent
+                          </div>
+                          <div className="mt-1 text-sm text-neutral-800">
+                            {aboutMe.secretTalent}
+                          </div>
+                        </div>
+                      )}
+                      {aboutMe?.futureJob && (
+                        <div className="rounded-lg bg-white/40 p-3">
+                          <div className="text-xs text-neutral-600">
+                            Dream Job
+                          </div>
+                          <div className="mt-1 text-sm text-neutral-800">
+                            {aboutMe.futureJob}
+                          </div>
+                        </div>
+                      )}
+                      {aboutMe?.dreamDestination && (
+                        <div className="rounded-lg bg-white/40 p-3">
+                          <div className="text-xs text-neutral-600">
+                            Dream Destination
+                          </div>
+                          <div className="mt-1 text-sm text-neutral-800">
+                            {aboutMe.dreamDestination}
+                          </div>
+                        </div>
+                      )}
+                      {aboutMe?.messageToSelf && (
+                        <div className="rounded-lg bg-white/40 p-3">
+                          <div className="text-xs text-neutral-600">
+                            Message to Self
+                          </div>
+                          <div className="mt-1 text-sm italic text-neutral-800">
+                            "{aboutMe.messageToSelf}"
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Quick Questions */}
+                    {aboutMe?.qa &&
+                      Object.values(aboutMe.qa).some((v) => v) && (
+                        <div className="mb-4">
+                          <div
+                            className="mb-3 sb-highlight sb-highlight--lemon text-sm"
+                            style={{ fontFamily: "var(--font-scribble)" }}
+                          >
+                            Quick Answers
+                          </div>
+                          <div className="space-y-3 text-sm">
+                            {Object.entries(aboutMe.qa).map(([key, val]: [string, any]) => {
+                              const qIdx = parseInt(key.replace("q", ""));
+                              const label = getQuestionLabel(qIdx);
+                              return val ? (
+                                <div
+                                  key={key}
+                                  className="rounded-lg bg-white/40 p-3 border-l-2 border-neutral-300"
+                                >
+                                  <div className="mb-1 text-xs font-semibold text-neutral-700">
+                                    {label}
+                                  </div>
+                                  <div className="text-neutral-800">
+                                    {val}
+                                  </div>
+                                </div>
+                              ) : null;
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                    {/* Fun Facts */}
+                    {aboutMe?.funFacts && (
+                      <div className="rounded-lg bg-white/40 p-3">
+                        <div
+                          className="mb-2 text-xs font-semibold text-neutral-700"
+                          style={{ fontFamily: "var(--font-scribble)" }}
+                        >
+                          Fun Facts
+                        </div>
+                        <div className="text-sm text-neutral-800 whitespace-pre-wrap">
+                          {aboutMe.funFacts}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Raw JSON Toggle */}
+                    <details className="mt-4 pt-4 border-t border-neutral-200">
+                      <summary className="cursor-pointer text-xs font-semibold text-neutral-600 hover:text-neutral-800">
+                        View Raw JSON
+                      </summary>
+                      <textarea
+                        readOnly
+                        className="sb-scribble mt-3 h-[200px] w-full resize-none bg-white/50 px-3 py-2 font-mono text-[11px] leading-4"
+                        value={JSON.stringify(payload, null, 2)}
+                      />
+                    </details>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>

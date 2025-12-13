@@ -1,5 +1,13 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Environment variables (SENSITIVE - DO NOT COMMIT)
+.env
+.env.local
+.env.*.local
+.env.production.local
+.env.development.local
+.env.test.local
+
 # dependencies
 /node_modules
 /.pnp
@@ -30,10 +38,6 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-!.env.example
-
 # vercel
 .vercel
 
@@ -43,3 +47,16 @@ next-env.d.ts
 
 # slambook local data
 /data
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+
+# Bun
+.bun
+bunfig.toml.bak

@@ -1,6 +1,9 @@
 import crypto from "node:crypto";
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
 
 export type SlambookPhoto = {
   storageName: string;
@@ -16,56 +19,70 @@ export type SlambookSubmission = {
   photo?: SlambookPhoto;
 };
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
-const SUBMISSIONS_FILE = path.join(DATA_DIR, "submissions.json");
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION || "eu-north-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+  },
+});
 
-async function ensureDataFiles() {
-  await fs.mkdir(UPLOADS_DIR, { recursive: true });
-  try {
-    await fs.access(SUBMISSIONS_FILE);
-  } catch {
-    await fs.writeFile(SUBMISSIONS_FILE, "[]\n", "utf8");
-  }
-}
-
-export function getUploadsDir() {
-  return UPLOADS_DIR;
-}
+const bucketName = process.env.S3_BUCKET_NAME || "slam-book-5";
+const SUBMISSIONS_KEY = "submissions/submissions.json";
 
 export function generateId(prefix = "sub") {
   return `${prefix}_${crypto.randomUUID()}`;
 }
 
 export async function readAllSubmissions(): Promise<SlambookSubmission[]> {
-  await ensureDataFiles();
-  const raw = await fs.readFile(SUBMISSIONS_FILE, "utf8");
   try {
-    const parsed = JSON.parse(raw) as unknown;
+    console.log("[S3] Fetching submissions from S3...");
+    const command = new GetObjectCommand({
+      Bucket: bucketName,
+      Key: SUBMISSIONS_KEY,
+    });
+    const response = await s3Client.send(command);
+    const buffer = await response.Body?.transformToByteArray();
+    const json = Buffer.from(buffer || []).toString("utf-8");
+    const parsed = JSON.parse(json) as unknown;
+    console.log("[S3] Submissions fetched successfully");
     return Array.isArray(parsed) ? (parsed as SlambookSubmission[]) : [];
-  } catch {
+  } catch (error: any) {
+    if (error.Code === "NoSuchKey") {
+      console.log("[S3] No submissions file found, starting fresh");
+      return [];
+    }
+    console.error("[S3] Error fetching submissions:", error);
     return [];
   }
-}
-
-async function atomicWrite(filePath: string, contents: string) {
-  const tmp = `${filePath}.${crypto.randomUUID()}.tmp`;
-  await fs.writeFile(tmp, contents, "utf8");
-  await fs.rename(tmp, filePath);
 }
 
 export async function appendSubmission(
   submission: Omit<SlambookSubmission, "id" | "createdAt">,
 ): Promise<SlambookSubmission> {
-  await ensureDataFiles();
   const full: SlambookSubmission = {
     id: generateId(),
     createdAt: new Date().toISOString(),
     ...submission,
   };
 
-  const all = await readAllSubmissions();
-  all.unshift(full);
-  await atomicWrite(SUBMISSIONS_FILE, `${JSON.stringify(all, null, 2)}\n`);
-  return full;
+  try {
+    console.log("[S3] Reading existing submissions...");
+    const all = await readAllSubmissions();
+    all.unshift(full);
+
+    console.log("[S3] Uploading submissions to S3...");
+    const command = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: SUBMISSIONS_KEY,
+      Body: JSON.stringify(all, null, 2),
+      ContentType: "application/json",
+    });
+    await s3Client.send(command);
+    console.log("[S3] Submission saved successfully");
+    return full;
+  } catch (error) {
+    console.error("[S3] Error saving submission:", error);
+    throw new Error("Failed to save submission to S3");
+  }
 }

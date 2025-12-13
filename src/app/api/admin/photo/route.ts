@@ -1,8 +1,6 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import { requireAdminKey } from "@/lib/server/adminAuth";
-import { getUploadsDir } from "@/lib/server/slambookStorage";
+import { getPhotoFromS3 } from "@/lib/server/s3Storage";
 
 export const runtime = "nodejs";
 
@@ -18,9 +16,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Missing storageName" }, { status: 400 });
   }
 
-  const filePath = path.join(getUploadsDir(), storageName);
   try {
-    const buf = await fs.readFile(filePath);
+    const buf = await getPhotoFromS3(storageName);
     return new NextResponse(buf, {
       headers: {
         "content-type": "application/octet-stream",

@@ -1,23 +1,11 @@
-import crypto from "node:crypto";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import {
   appendSubmission,
-  getUploadsDir,
   type SlambookPhoto,
 } from "@/lib/server/slambookStorage";
+import { uploadPhotoToS3 } from "@/lib/server/s3Storage";
 
 export const runtime = "nodejs";
-
-function extFromMime(mime: string) {
-  const m = mime.toLowerCase();
-  if (m === "image/jpeg" || m === "image/jpg") return "jpg";
-  if (m === "image/png") return "png";
-  if (m === "image/webp") return "webp";
-  if (m === "image/gif") return "gif";
-  return "bin";
-}
 
 export async function POST(req: Request) {
   try {
@@ -47,17 +35,27 @@ export async function POST(req: Request) {
           { status: 413 },
         );
       }
-      const ext = extFromMime(photoFile.type || "");
-      const storageName = `photo_${crypto.randomUUID()}.${ext}`;
-      const uploadPath = path.join(getUploadsDir(), storageName);
-      const buf = Buffer.from(await photoFile.arrayBuffer());
-      await fs.writeFile(uploadPath, buf);
-      photo = {
-        storageName,
-        originalName: photoFile.name || storageName,
-        mimeType: photoFile.type || "application/octet-stream",
-        size: photoFile.size,
-      };
+      
+      try {
+        const buf = Buffer.from(await photoFile.arrayBuffer());
+        const { storageName } = await uploadPhotoToS3(
+          buf,
+          photoFile.name || "photo",
+          photoFile.type || "application/octet-stream",
+        );
+        photo = {
+          storageName,
+          originalName: photoFile.name || storageName,
+          mimeType: photoFile.type || "application/octet-stream",
+          size: photoFile.size,
+        };
+      } catch (uploadError) {
+        console.error("Photo upload error:", uploadError);
+        return NextResponse.json(
+          { error: "Failed to upload photo to S3" },
+          { status: 500 },
+        );
+      }
     }
 
     const saved = await appendSubmission({ payload, photo });
