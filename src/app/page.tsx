@@ -707,7 +707,7 @@ export default function Home() {
 				</div>
 
 				<div className="mt-5 text-center text-xs text-neutral-600">
-					Fact: You are special to the guy who sent you this... {" "}
+					Fun Fact: You are special to the guy who sent you this... {" "}
 					<span className="font-semibold"></span>
 				</div>
 			</div>
