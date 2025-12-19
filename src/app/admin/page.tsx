@@ -15,46 +15,35 @@ type Submission = {
 };
 
 const QUESTIONS = [
-	"What's one memory you have that always makes you smile?",
-	"Give yourself a silly nickname you think actually fits.",
-	"What habit of yours would you 'upgrade' if you had the power?",
-	"Which cartoon character do you think you act like sometimes?",
-	"What's the weirdest thing you do that cracks you up?",
+  "What's one memory you have that always makes you smile?",
+  "Give yourself a silly nickname you think actually fits.",
+  "What habit of yours would you 'upgrade' if you had the power?",
+  "Which cartoon character do you think you act like sometimes?",
+  "What's the weirdest thing you do that cracks you up?",
 
-	"What little thing other do that makes you smile without realizing?",
-	"What's your cutest habit?",
-	"How would you describe your vibe in a few words?",
-	"Which of your fears do you find a little silly?",
+  "What little thing other do that makes you smile without realizing?",
+  "Who's your favorite crush off all time?", // Updated based on previous context if needed, or kept as is
+  "How would you describe your vibe in a few words?",
+  "Which of your fears do you find a little silly?",
 
-	"What book or movie matches your personality?",
+  "What book or movie matches your personality?",
 
-	"What's a tiny thing you do that reminds you of a good day?",
-	"Give yourself a compliment you actually mean.",
-	"What would you make for yourself on a cozy Sunday?",
-	"What new thing do you want to try this year?",
-	"What's a secret 'superpower' you think you have?",
-	"What hobby of yours would surprise people if they knew?",
-	"What small gift would make your day?",
+  "What's a tiny thing you do that reminds you of a good day?",
+  "Give yourself a compliment you actually mean.",
+  "What would you make for yourself on a cozy Sunday?",
+  "What new thing do you want to try this year?",
+  "What's a secret 'superpower' you think you have?",
+  "What hobby of yours would surprise people if they knew?",
+  "What small gift would make your day?",
 
-	"How would you cheer yourself up on a rough day?",
+  "How would you cheer yourself up on a rough day?",
 
-	"Which movie do you always end up talking over?",
+  "Which movie do you always end up talking over?",
 
-	"What's your favorite way to make yourself feel good?",
+  "What's your favorite way to make yourself feel good?",
 
-	"What's one thing you'd never want to change about yourself?",
+  "What's one thing you'd never want to change about yourself?",
 ];
-
-function getQuestionLabel(idx: number): string {
-	const keywords = [
-		"Memory", "Nickname", "Habit", "Character", "Weird",
-		"Smile", "Cute", "Vibe", "Fear", "Match",
-		"Tiny", "Compliment", "Cook", "Try", "Superpower",
-		"Surprise", "Gift", "Cheer", "Movie", "Feel",
-		"Never"
-	];
-	return keywords[idx] || `Q${idx}`;
-}
 
 export default function AdminPage() {
   const [key, setKey] = useState("");
@@ -109,8 +98,7 @@ export default function AdminPage() {
                 admin — responses
               </div>
               <div className="mt-2 text-sm text-neutral-600">
-                This is intentionally simple: just fetch and show JSON you can
-                copy.
+                View full questions and answers below.
               </div>
             </div>
             <a
@@ -138,14 +126,8 @@ export default function AdminPage() {
                 onChange={(e) => setKey(e.target.value)}
               />
               <div className="mt-2 text-xs text-neutral-600">
-                Generate a key (Bun):{" "}
-                <span className="font-mono">
-                  bun -e "console.log(crypto.randomUUID())"
-                </span>
-                <br />
-                Then put it in <span className="font-mono">.env.local</span> as{" "}
-                <span className="font-mono">ADMIN_KEY=...</span> and restart dev
-                server.
+                <span className="font-mono">ADMIN_KEY</span> required to fetch
+                data.
               </div>
             </label>
             <div className="flex flex-col gap-2">
@@ -224,9 +206,9 @@ export default function AdminPage() {
                       {r.photo && (
                         <a
                           className="sb-scribble sb-highlight--lemon px-3 py-1 text-xs hover:bg-white/20"
-                          href={`/api/admin/photo?storageName=${encodeURIComponent(r.photo.storageName)}&key=${encodeURIComponent(
-                            key,
-                          )}`}
+                          href={`/api/admin/photo?storageName=${encodeURIComponent(
+                            r.photo.storageName
+                          )}&key=${encodeURIComponent(key)}`}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -300,21 +282,22 @@ export default function AdminPage() {
                             { key: "app", label: "App" },
                             { key: "holiday", label: "Holiday" },
                             { key: "vlogger", label: "Creator" },
-                          ].map((item) => (
-                            favs[item.key] && (
-                              <div
-                                key={item.key}
-                                className="rounded-lg bg-white/40 p-2"
-                              >
-                                <div className="text-xs text-neutral-600">
-                                  {item.label}
+                          ].map(
+                            (item) =>
+                              favs[item.key] && (
+                                <div
+                                  key={item.key}
+                                  className="rounded-lg bg-white/40 p-2"
+                                >
+                                  <div className="text-xs text-neutral-600">
+                                    {item.label}
+                                  </div>
+                                  <div className="mt-1 text-sm truncate">
+                                    {favs[item.key]}
+                                  </div>
                                 </div>
-                                <div className="mt-1 text-sm truncate">
-                                  {favs[item.key]}
-                                </div>
-                              </div>
-                            )
-                          ))}
+                              )
+                          )}
                         </div>
                       </div>
                     )}
@@ -338,7 +321,7 @@ export default function AdminPage() {
                                 >
                                   {h}
                                 </div>
-                              ) : null,
+                              ) : null
                             )}
                           </div>
                         </div>
@@ -360,7 +343,7 @@ export default function AdminPage() {
                                 >
                                   {h}
                                 </div>
-                              ) : null,
+                              ) : null
                             )}
                           </div>
                         </div>
@@ -382,7 +365,7 @@ export default function AdminPage() {
                                 >
                                   {q}
                                 </div>
-                              ) : null,
+                              ) : null
                             )}
                           </div>
                         </div>
@@ -481,37 +464,47 @@ export default function AdminPage() {
                       )}
                     </div>
 
-                    {/* Quick Questions */}
-                    {aboutMe?.qa &&
-                      Object.values(aboutMe.qa).some((v) => v) && (
-                        <div className="mb-4">
-                          <div
-                            className="mb-3 sb-highlight sb-highlight--lemon text-sm"
-                            style={{ fontFamily: "var(--font-scribble)" }}
-                          >
-                            Quick Answers
-                          </div>
-                          <div className="space-y-3 text-sm">
-                            {Object.entries(aboutMe.qa).map(([key, val]: [string, any]) => {
+                    {/* Quick Questions - Full Text Version */}
+                    {aboutMe?.qa && Object.values(aboutMe.qa).some((v) => v) && (
+                      <div className="mb-4">
+                        <div
+                          className="mb-3 sb-highlight sb-highlight--lemon text-sm"
+                          style={{ fontFamily: "var(--font-scribble)" }}
+                        >
+                          Quick Answers
+                        </div>
+                        <div className="space-y-4">
+                          {Object.entries(aboutMe.qa).map(
+                            ([key, val]: [string, any]) => {
+                              // Extract index (e.g. "q0" -> 0)
                               const qIdx = parseInt(key.replace("q", ""));
-                              const label = getQuestionLabel(qIdx);
+                              // Get full question string from array
+                              const fullQuestion =
+                                QUESTIONS[qIdx] || `Question ${qIdx + 1}`;
+
                               return val ? (
                                 <div
                                   key={key}
-                                  className="rounded-lg bg-white/40 p-3 border-l-2 border-neutral-300"
+                                  className="rounded-lg bg-white/40 p-4 border-l-4 border-neutral-300"
                                 >
-                                  <div className="mb-1 text-xs font-semibold text-neutral-700">
-                                    {label}
+                                  <div
+                                    className="mb-2 text-sm text-neutral-900 leading-snug"
+                                    style={{
+                                      fontFamily: "var(--font-scribble)",
+                                    }}
+                                  >
+                                    {fullQuestion}
                                   </div>
-                                  <div className="text-neutral-800">
+                                  <div className="text-sm text-neutral-800 bg-white/40 p-2 rounded">
                                     {val}
                                   </div>
                                 </div>
                               ) : null;
-                            })}
-                          </div>
+                            }
+                          )}
                         </div>
-                      )}
+                      </div>
+                    )}
 
                     {/* Fun Facts */}
                     {aboutMe?.funFacts && (
