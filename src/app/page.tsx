@@ -234,7 +234,7 @@ export default function Home() {
 								className="sb-highlight"
 								style={{ fontFamily: "var(--font-scribble)", fontSize: 22 }}
 							>
-								A Little Bit About you...(actually not little)
+								A Little Bit About you...(actually not a little)
 							</div>
 							<div
 								className="sb-highlight sb-highlight--lemon"
