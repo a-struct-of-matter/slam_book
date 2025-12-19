@@ -46,7 +46,7 @@ const QUESTIONS = [
 // Updated SlamPayload to focus on 'her' (the recipient)
 type SlamPayload = {
 	aboutMe: {
-		// Basic Info (renamed to recipient)
+		// Basic Info
 		name: string;
 		birthday: string;
 		currentPlace: string;
@@ -61,13 +61,13 @@ type SlamPayload = {
 			app: string;
 			holiday: string;
 			vlogger: string;
-			song: string; // New: Favorite Song
-			book: string; // New: Favorite Book
-			color: string; // New: Favorite Color
+			song: string;
+			book: string;
+			color: string;
 		};
 
 		// Personal Insights
-		quirks: string[]; // Moved and renamed from 'friendships'
+		quirks: string[];
 		hobbies: string[];
 		habits: string[];
 		interests: string;
@@ -77,13 +77,13 @@ type SlamPayload = {
 		nowPlaying: string;
 		motto: string;
 		funFacts: string;
-		messageToSelf: string; // New: Message to future self
-		bestQuality: string; // New: Your best quality
-		secretTalent: string; // New: Secret talent
-		futureJob: string; // New: Dream job
-		dreamDestination: string; // New: Dream destination
+		messageToSelf: string;
+		bestQuality: string;
+		secretTalent: string;
+		futureJob: string;
+		dreamDestination: string;
 
-		// QA: mapped final questions (q0, q1, ...)
+		// QA: mapped final questions
 		qa: Record<string, string>;
 	};
 };
@@ -139,7 +139,6 @@ export default function Home() {
 		setError("");
 		try {
 			const fd = new FormData();
-			// Only send the 'aboutMe' data now
 			fd.set("payload", JSON.stringify(slam));
 
 			if (photo) {
@@ -159,19 +158,20 @@ export default function Home() {
 	}
 
 	return (
-		<div className="min-h-screen bg-[var(--background)] px-4 py-10 text-[var(--ink)]">
+		<div className="min-h-screen bg-[var(--background)] px-2 py-6 md:px-4 md:py-10 text-[var(--ink)]">
 			<div className="mx-auto max-w-4xl">
-				<div className="mb-6 flex items-end justify-between gap-4">
-					<div>
-						<div className="inline-flex items-center gap-2">
+				{/* Header Section: Changed to flex-col for mobile to prevent squishing */}
+				<div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+					<div className="text-center md:text-left">
+						<div className="inline-flex flex-col items-center gap-1 md:flex-row md:gap-2">
 							<span
-								className="sb-highlight"
+								className="sb-highlight text-xl md:text-2xl"
 								style={{ fontFamily: "var(--font-scribble)" }}
 							>
 								my slambook
 							</span>
 							<span
-								className="sb-highlight sb-highlight--lemon"
+								className="sb-highlight sb-highlight--lemon text-sm md:text-base"
 								style={{ fontFamily: "var(--font-scribble)" }}
 							>
 								a page for you
@@ -179,7 +179,7 @@ export default function Home() {
 						</div>
 					</div>
 
-					<div className="flex items-center gap-2">
+					<div className="flex w-full items-center justify-center gap-2 md:w-auto">
 						<button
 							type="button"
 							onClick={() => {
@@ -188,7 +188,7 @@ export default function Home() {
 								setStatus("idle");
 								setError("");
 							}}
-							className="sb-scribble sb-highlight px-4 py-2 text-[14px]"
+							className="sb-scribble sb-highlight flex-1 whitespace-nowrap px-3 py-2 text-[13px] md:flex-none md:px-4 md:text-[14px]"
 							style={{ fontFamily: "var(--font-scribble)" }}
 						>
 							reset page
@@ -197,7 +197,7 @@ export default function Home() {
 							type="button"
 							onClick={submit}
 							disabled={status === "saving"}
-							className="sb-scribble sb-highlight sb-highlight--peach px-5 py-2 text-[14px]"
+							className="sb-scribble sb-highlight sb-highlight--peach flex-1 whitespace-nowrap px-4 py-2 text-[13px] md:flex-none md:px-5 md:text-[14px]"
 							style={{ fontFamily: "var(--font-scribble)" }}
 						>
 							{status === "saving" ? "saving..." : "send my entry"}
@@ -205,6 +205,7 @@ export default function Home() {
 					</div>
 				</div>
 
+				{/* Status Messages */}
 				{status === "saved" ? (
 					<div className="mb-6 rounded-2xl bg-white/70 px-4 py-3 text-sm text-neutral-800 shadow-sm">
 						<span
@@ -223,21 +224,25 @@ export default function Home() {
 					</div>
 				) : null}
 
-				<div className="sb-paper sb-grid relative overflow-hidden p-6 md:p-8">
-					<HeartDoodle className="sb-doodle left-6 top-6 h-14 w-14 -rotate-6" />
-					<SparkleDoodle className="sb-doodle right-10 top-10 h-12 w-12 rotate-6" />
-					<CameraDoodle className="sb-doodle right-6 bottom-6 h-14 w-14 rotate-6 opacity-80" />
+				{/* Main Paper Container */}
+				{/* Added 'overflow-hidden' and adjusted padding for mobile */}
+				<div className="sb-paper sb-grid relative overflow-hidden p-3 md:p-6 lg:p-8">
+					
+					{/* Doodles: Hidden on mobile (hidden md:block) to prevent overlapping inputs */}
+					<HeartDoodle className="sb-doodle hidden md:block absolute left-6 top-6 h-14 w-14 -rotate-6 pointer-events-none" />
+					<SparkleDoodle className="sb-doodle hidden md:block absolute right-10 top-10 h-12 w-12 rotate-6 pointer-events-none" />
+					<CameraDoodle className="sb-doodle hidden md:block absolute right-6 bottom-6 h-14 w-14 rotate-6 opacity-80 pointer-events-none" />
 
-					<section className="relative rounded-2xl bg-white/55 p-5 shadow-[0_1px_0_rgba(0,0,0,0.06)]">
-						<div className="mb-6 flex items-center justify-between">
+					<section className="relative rounded-2xl bg-white/55 p-3 md:p-5 shadow-[0_1px_0_rgba(0,0,0,0.06)]">
+						<div className="mb-6 flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
 							<div
-								className="sb-highlight"
-								style={{ fontFamily: "var(--font-scribble)", fontSize: 22 }}
+								className="sb-highlight text-lg md:text-xl"
+								style={{ fontFamily: "var(--font-scribble)" }}
 							>
 								A Little Bit About you...(actually not a little)
 							</div>
 							<div
-								className="sb-highlight sb-highlight--lemon"
+								className="sb-highlight sb-highlight--lemon text-sm"
 								style={{ fontFamily: "var(--font-scribble)" }}
 							>
 								Current Vibes
@@ -295,10 +300,10 @@ export default function Home() {
 							>
 								Add a Photo
 							</div>
-							<label className="block cursor-pointer">
-								<div className="sb-scribble rounded-lg border-2 border-dashed border-neutral-300 p-3 text-center text-sm text-neutral-700 hover:bg-white/20">
+							<label className="block cursor-pointer active:scale-95 transition-transform">
+								<div className="sb-scribble rounded-lg border-2 border-dashed border-neutral-300 p-4 text-center text-sm text-neutral-700 hover:bg-white/20">
 									<div style={{ fontFamily: "var(--font-scribble)" }}>
-										{photo ? `📷 ${photo.name}` : "drop a photo"}
+										{photo ? `📷 ${photo.name}` : "tap to drop a photo"}
 									</div>
 									<div className="mt-1 text-xs text-neutral-500">
 										jpg / png / webp
@@ -314,14 +319,14 @@ export default function Home() {
 						</div>
 
 						{/* Favorites Section */}
-						<div className="mt-8 rounded-2xl bg-white/45 p-4">
+						<div className="mt-8 rounded-2xl bg-white/45 p-3 md:p-4">
 							<div
 								className="mb-3 sb-highlight sb-highlight--peach"
 								style={{ fontFamily: "var(--font-scribble)" }}
 							>
 								My Current Favorites
 							</div>
-							<div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+							<div className="grid gap-3 md:gap-2 md:grid-cols-2 lg:grid-cols-3">
 								<ScribbleField
 									label="food"
 									value={slam.aboutMe.favorites.food}
@@ -457,7 +462,7 @@ export default function Home() {
 
 						{/* Hobbies & Habits Section */}
 						<div className="mt-8 grid gap-4 md:grid-cols-2">
-							<div className="rounded-2xl bg-white/45 p-4">
+							<div className="rounded-2xl bg-white/45 p-3 md:p-4">
 								<div
 									className="mb-2 sb-highlight sb-highlight--lemon"
 									style={{ fontFamily: "var(--font-scribble)" }}
@@ -511,12 +516,12 @@ export default function Home() {
 								</div>
 							</div>
 
-							<div className="rounded-2xl bg-white/45 p-4">
+							<div className="rounded-2xl bg-white/45 p-3 md:p-4">
 								<div
 									className="mb-2 sb-highlight sb-highlight--peach"
 									style={{ fontFamily: "var(--font-scribble)" }}
 								>
-									My Quirks(wierd things about you)
+									My Quirks
 								</div>
 								<div className="grid gap-2">
 									{slam.aboutMe.quirks.map((v, idx) => (
@@ -579,8 +584,8 @@ export default function Home() {
 						{/* Area Fields */}
 						<div className="mt-8 grid gap-4 md:grid-cols-2">
 							<ScribbleArea
-								className="rounded-2xl bg-white/45 p-4"
-								label="What I'm passionate about (interests)"
+								className="rounded-2xl bg-white/45 p-3 md:p-4"
+								label="What I'm passionate about"
 								rows={5}
 								value={slam.aboutMe.interests}
 								onChange={(v) =>
@@ -591,7 +596,7 @@ export default function Home() {
 								}
 							/>
 							<ScribbleArea
-								className="rounded-2xl bg-white/45 p-4"
+								className="rounded-2xl bg-white/45 p-3 md:p-4"
 								label="5 things I want to do (bucket list)"
 								rows={5}
 								value={slam.aboutMe.bucketList}
@@ -607,7 +612,7 @@ export default function Home() {
 						{/* Future/Message Fields */}
 						<div className="mt-8 grid gap-4 md:grid-cols-3">
 							<ScribbleArea
-								className="rounded-2xl bg-white/45 p-4 md:col-span-1"
+								className="rounded-2xl bg-white/45 p-3 md:p-4 md:col-span-1"
 								label="My Life Motto"
 								rows={3}
 								value={slam.aboutMe.motto}
@@ -619,8 +624,8 @@ export default function Home() {
 								}
 							/>
 							<ScribbleArea
-								className="rounded-2xl bg-white/45 p-4 md:col-span-1"
-								label="A Message to My Future Self"
+								className="rounded-2xl bg-white/45 p-3 md:p-4 md:col-span-1"
+								label="Message to Future Self"
 								rows={3}
 								value={slam.aboutMe.messageToSelf}
 								onChange={(v) =>
@@ -631,7 +636,7 @@ export default function Home() {
 								}
 							/>
 							<ScribbleArea
-								className="rounded-2xl bg-white/45 p-4 md:col-span-1"
+								className="rounded-2xl bg-white/45 p-3 md:p-4 md:col-span-1"
 								label="Fun Facts About Me"
 								rows={3}
 								value={slam.aboutMe.funFacts}
@@ -646,7 +651,7 @@ export default function Home() {
 
 						<div className="mt-8 grid gap-4 md:grid-cols-2">
 							<ScribbleField
-								label="Currently listening to (song/artist)"
+								label="Currently listening to"
 								value={slam.aboutMe.nowPlaying}
 								onChange={(v) =>
 									setSlam((s) => ({
@@ -668,7 +673,7 @@ export default function Home() {
 						</div>
 
 						{/* === Embedded final mixed questions === */}
-						<div className="mt-8 rounded-2xl bg-white/45 p-4">
+						<div className="mt-8 rounded-2xl bg-white/45 p-3 md:p-4">
 							<div
 								className="mb-3 sb-highlight sb-highlight--peach"
 								style={{ fontFamily: "var(--font-scribble)" }}
@@ -676,7 +681,7 @@ export default function Home() {
 								Quick Questions (all about you)
 							</div>
 
-							<div className="grid gap-3">
+							<div className="grid gap-4 md:gap-3">
 								{QUESTIONS.map((q, idx) => {
 									const key = `q${idx}`;
 									return (
