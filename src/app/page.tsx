@@ -20,7 +20,7 @@ const QUESTIONS = [
 	"What's the weirdest thing you do that cracks you up?",
 
 	"What little thing other do that makes you smile without realizing?",
-	"What's your cutest habit?",
+	"Who's your favorite crush off all time?",
 	"How would you describe your vibe in a few words?",
 	"Which of your fears do you find a little silly?",
 
@@ -702,8 +702,8 @@ export default function Home() {
 				</div>
 
 				<div className="mt-5 text-center text-xs text-neutral-600">
-					Tip: to read responses, visit{" "}
-					<span className="font-semibold">/admin</span>
+					Fact: You are special to the guy who sent you this... {" "}
+					<span className="font-semibold"></span>
 				</div>
 			</div>
 		</div>
